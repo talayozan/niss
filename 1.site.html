@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Niss & Ozi 💙</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Raleway:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body onload="hideLoader()">
+
+  <div id="loader">Nisa için hazırlanıyor... 💙</div>
+  <div class="hearts" id="hearts"></div>
+
+  <audio id="nisaMusic" autoplay style="display: none;">
+    <source src="nisa-sarki.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="section">
+    <h1>Niss & Ozi 💙</h1>
+    <p>İlk haftamız ama seninle bir ömür geçirmemin isteğinin bir başlangıcı 😎</p>
+    <p><em>Nisa bu site senin için, çünkü seninle geçen her an özel. 💙 İlk haftamız kutlu olsun.</em></p>
+    <button class="btn" onclick="startStory()">Başlatmak için tıklaa</button>
+  </div>
+
+  <div class="section" id="mektup" style="display:none">
+    <h2>💌 Bir Mektup</h2>
+    <p>Canım Nisamm,<br><br>Daha bir hafta oldu ama kalbim sana çoktan ait oldu. Uzakta olsak da, her mesajında yakınımda hissettiğim o sıcaklık bana en gerçek sevgiyi anlatıyor.<br><br>Bu minicik site, sana olan duygularımı anlatmak için küçük bir hediye. Çünkü sen, kalbimin en kıymetlisisin.<br><br>Sonsuz bir hikâyeye ilk adımımız kutlu olsun.<br><br><span class="signature">— Senin Oziinn 💙</span></p>
+  </div>
+
+  <div class="section" id="siir" style="display:none">
+    <h2>🌸 Beni Bir şaire çeviren güzelliğin için bir başka şiir</h2>
+    <p>Bir hafta geçti, ama yetmedi anlatmaya,<br>
+    Bir gülüşün düştü içime, tutuldum sana.<br>
+    Her gece hayalinle uyuyorum sessizce,<br>
+    Kalbim sadece seninle, her yerde, her hecede.</p>
+  </div>
+
+  <div class="section" id="hayal" style="display:none">
+    <h2>💫 Birlikte Yapmak İçin Hayalini Kurduğum Aktivitelerr</h2>
+    <ul>
+      <li>🎬 Birlikte izleyeceğimiz ilk film</li>
+      <li>🤗 İlk sarılmamız</li>
+      <li>🏖️ İlk tatilimiz</li>
+      <li>🌙 İlk gece yürüyüşümüz</li>
+    </ul>
+    <p>Hepsi ve aklıma gelmeyen büssürü şeyy...</p>
+  </div>
+
+  <div class="section" id="kapanis" style="display:none">
+    <h2>🌙 Ve Son Olarak</h2>
+    <p>Bu bir haftalık serüven, sonsuz bir hikayenin başlangıcı.<br><br>
+    Seni çoooook seviyorummmmm Nisamm 💙<br><br>
+    — Oziinn</p>
+  </div>
+
+  <script>
+    function startStory() {
+      document.getElementById('nisaMusic').play();
+      document.getElementById('mektup').style.display = 'block';
+      setTimeout(() => document.getElementById('siir').style.display = 'block', 1500);
+      setTimeout(() => document.getElementById('hayal').style.display = 'block', 3000);
+      setTimeout(() => document.getElementById('kapanis').style.display = 'block', 4500);
+    }
+
+    const hearts = document.getElementById('hearts');
+    setInterval(() => {
+      const heart = document.createElement('div');
+      heart.classList.add('heart');
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.animationDuration = 4 + Math.random() * 4 + 's';
+      hearts.appendChild(heart);
+      setTimeout(() => heart.remove(), 6000);
+    }, 300);
+
+    function hideLoader() {
+      document.getElementById('loader').style.display = 'none';
+    }
+  </script>
+
+</body>
+</html>
