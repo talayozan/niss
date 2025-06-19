@@ -83,6 +83,8 @@
   </div>
   <div id="gameOverScreen"></div>
   <canvas id="gameCanvas" width="900" height="900"></canvas>
+  <audio id="catchSound" src="catch.mp3" preload="auto"></audio>
+
 
   <script>
     const canvas = document.getElementById('gameCanvas');
@@ -188,34 +190,37 @@
     }
 
     function checkCatch() {
-      targets = targets.filter(target => {
-        if (
-          target.x < player.x + player.width &&
-          target.x + target.width > player.x &&
-          target.y < player.y + player.height &&
-          target.y + target.height > player.y
-        ) {
-          
+  targets = targets.filter(target => {
+    if (
+      target.x < player.x + player.width &&
+      target.x + target.width > player.x &&
+      target.y < player.y + player.height &&
+      target.y + target.height > player.y
+    ) {
+      // SES EFEKTİ BURADA ÇALIYOR
+      const sound = document.getElementById("catchSound");
+      sound.currentTime = 0;
+      sound.play();
+
       if (target.ice) {
         slowDownTargets(5000);
       } else if (target.double) {
         activateDoublePoints(5000);
       }
       score += (target.bonus ? 3 : 1) * (doublePointsActive ? 2 : 1);
-    
-          updateScoreboard();
-          return false;
-        } else if (target.y > canvas.height) {
-          health--;
-          updateScoreboard();
-          if (health <= 0) {
-            endGame();
-          }
-          return false;
-        }
-        return true;
-      });
+      updateScoreboard();
+      return false;
+    } else if (target.y > canvas.height) {
+      health--;
+      updateScoreboard();
+      if (health <= 0) {
+        endGame();
+      }
+      return false;
     }
+    return true;
+  });
+}
 
     function updateScoreboard() {
       const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
