@@ -2,339 +2,47 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Nisa’yı Yakala 🎯</title>
+  <meta charset="UTF-8">
+  <title>Nisa & Ozan 💙💛</title>
   <style>
     body {
+      font-family: sans-serif;
+      background: linear-gradient(to right, #dbeafe, #fffde7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
       margin: 0;
-      overflow: hidden;
-      background: linear-gradient(to right, #f6d365, #fda085);
-      font-family: 'Comic Sans MS', cursive, sans-serif;
-    }
-    #gameCanvas {
-      display: block;
-      margin: 30px auto 0;
-      background-color: #ffffff;
-      border: 4px solid #ff69b4;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
-    }
-    #scoreBoard {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      font-size: 20px;
-      background: rgba(255,255,255,0.9);
-      padding: 10px 20px;
-      border-radius: 12px;
-      font-weight: bold;
-      color: #d72638;
-      z-index: 10;
-      box-shadow: 0 0 10px rgba(255,182,193,0.5);
-    }
-    #controls {
-      position: absolute;
-      top: 100px;
-      left: 15px;
-      z-index: 10;
-    }
-    #controls button {
-      margin: 5px;
-      padding: 10px 18px;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 12px;
-      border: none;
-      cursor: pointer;
-      background: linear-gradient(to right, #ff416c, #ff4b2b);
-      color: white;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      transition: all 0.3s ease;
-    }
-    #controls button:hover {
-      transform: scale(1.05);
-      background: linear-gradient(to right, #ff4b2b, #ff416c);
-    }
-    #gameOverScreen {
-      display: none;
-      position: absolute;
-      top: 30%;
-      left: 50%;
-      transform: translate(-50%, -30%);
-      padding: 40px;
-      background-color: white;
-      border: 3px solid #ff69b4;
-      border-radius: 16px;
-      font-size: 22px;
-      color: #d72638;
       text-align: center;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
-      z-index: 100;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 40px;
+      color: #1e3a8a;
+    }
+    .btn {
+      padding: 16px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 30px;
+      margin: 10px;
+      cursor: pointer;
+      background-color: #fff;
+      color: #1e3a8a;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: background 0.3s;
+    }
+    .btn:hover {
+      background-color: #f1f5f9;
     }
   </style>
 </head>
 <body>
-  <div id="scoreBoard">Puan: 0 | Süre: 0 sn | Can: 3</div>
-  <div id="controls">
-    <button onclick="startGame()">▶️ Başlat</button>
-    <button onclick="pauseGame()" id="pauseBtn">⏸️ Durdur</button>
-    <button onclick="resumeGame()" id="resumeBtn" style="display:none;">▶️ Devam Et</button>
-    <button onclick="resetGame()">🔄 Sıfırla</button>
-  </div>
-  <div id="gameOverScreen"></div>
-  <canvas id="gameCanvas" width="900" height="900"></canvas>
-  <audio id="catchSound" src="catch.mp3" preload="auto"></audio>
-
-
-  <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-
-    const ozanImg = new Image();
-    const nisaImg = new Image();
-    ozanImg.src = 'ozan_face.png';
-    nisaImg.src = 'nisa_face.png';
-
-    let player = { x: 500, y: 750, width: 100, height: 100, speed: 7 };
-    let targets = [];
-    let score = 0;
-    let time = 0;
-    let gameActive = false;
-    let paused = false;
-    let spawnInterval;
-    let keys = {};
-    let health = 3;
-    let gameStartTime;
-    let targetSpeed = 3;
-    let difficultyIncreaseInterval;
-    let gameTimerInterval;
-
-    function spawnTarget() {
-      const x = Math.random() * (canvas.width - 100);
-      const isBonus = Math.random() < 0.15; // %15 bonus
-      const isZigzag = isBonus || Math.random() < 0.2; // bonuslar + %20 normal zigzag
-      targets.push({
-        x: x,
-        y: -100,
-        width: 100,
-        height: 100,
-        speed: isBonus ? targetSpeed * 1.8 : targetSpeed,
-        dx: isZigzag ? (Math.random() > 0.5 ? 2 : -2) : 0,
-        zigzag: isZigzag,
-        bonus: isBonus, ice: Math.random() < 0.1, double: Math.random() < 0.1
-      });
-    }
-
-    function drawPlayer() {
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(player.x + player.width/2, player.y + player.height/2, player.width/2, 0, Math.PI * 2, true);
-      ctx.closePath();
-      ctx.clip();
-      ctx.drawImage(ozanImg, player.x, player.y, player.width, player.height);
-      ctx.restore();
-    }
-
-    function drawTargets() {
-      targets.forEach(target => {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(target.x + target.width/2, target.y + target.height/2, target.width/2, 0, Math.PI * 2, true);
-        ctx.closePath();
-        ctx.clip();
-        if (target.bonus) {
-          ctx.filter = 'hue-rotate(45deg) brightness(1.5) saturate(2)';
-        }
-        
-      if (target.bonus) {
-        ctx.filter = 'hue-rotate(45deg) brightness(1.5) saturate(2)';
-      } else if (target.ice) {
-        ctx.filter = 'brightness(1.2) sepia(0.2) hue-rotate(180deg)';
-      } else if (target.double) {
-        ctx.filter = 'brightness(1.3) hue-rotate(300deg)';
-      }
-      
-      ctx.drawImage(nisaImg, target.x, target.y, target.width, target.height);
-      ctx.restore();
-
-      // Draw label
-      ctx.font = "bold 20px Arial";
-      ctx.textAlign = "center";
-      if (target.bonus) {
-        ctx.fillStyle = "gold";
-        ctx.fillText("BONUS", target.x + target.width / 2, target.y + target.height + 5);
-      } else if (target.ice) {
-        ctx.fillStyle = "lightblue";
-        ctx.fillText("BUZ", target.x + target.width / 2, target.y + target.height + 5);
-      } else if (target.double) {
-        ctx.fillStyle = "orange";
-        ctx.fillText("2X", target.x + target.width / 2, target.y + target.height + 5);
-      }
-    
-    
-        ctx.restore();
-        ctx.filter = 'none';
-      });
-    }
-
-    function moveTargets() {
-      targets.forEach(target => {
-        target.y += target.speed;
-        if (target.zigzag) {
-          target.x += target.dx;
-          if (target.x <= 0 || target.x + target.width >= canvas.width) {
-            target.dx *= -1;
-          }
-        }
-      });
-    }
-
-    function checkCatch() {
-  targets = targets.filter(target => {
-    if (
-      target.x < player.x + player.width &&
-      target.x + target.width > player.x &&
-      target.y < player.y + player.height &&
-      target.y + target.height > player.y
-    ) {
-      // SES EFEKTİ BURADA ÇALIYOR
-      const sound = document.getElementById("catchSound");
-      sound.currentTime = 0;
-      sound.play();
-
-      if (target.ice) {
-        slowDownTargets(5000);
-      } else if (target.double) {
-        activateDoublePoints(5000);
-      }
-      score += (target.bonus ? 3 : 1) * (doublePointsActive ? 2 : 1);
-      updateScoreboard();
-      return false;
-    } else if (target.y > canvas.height) {
-      health--;
-      updateScoreboard();
-      if (health <= 0) {
-        endGame();
-      }
-      return false;
-    }
-    return true;
-  });
-}
-
-    function updateScoreboard() {
-      const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
-      document.getElementById('scoreBoard').innerHTML = `Puan: ${score} | Süre: ${elapsed} sn | Can: ${health}`;
-    }
-
-    function update() {
-      if (!gameActive || paused) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawPlayer();
-      drawTargets();
-      moveTargets();
-      checkCatch();
-      requestAnimationFrame(update);
-    }
-
-    function handleMovement() {
-      if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
-      if (keys['ArrowRight'] && player.x < canvas.width - player.width) player.x += player.speed;
-      if (gameActive && !paused) requestAnimationFrame(handleMovement);
-    }
-
-    document.addEventListener('keydown', (e) => keys[e.key] = true);
-    document.addEventListener('keyup', (e) => keys[e.key] = false);
-
-    function startGame() {
-      score = 0;
-      health = 3;
-      targets = [];
-      time = 0;
-      targetSpeed = 3;
-      gameActive = true;
-      paused = false;
-      gameStartTime = Date.now();
-      updateScoreboard();
-      document.getElementById("gameOverScreen").style.display = "none";
-      document.getElementById("pauseBtn").style.display = "inline-block";
-      document.getElementById("resumeBtn").style.display = "none";
-      spawnInterval = setInterval(spawnTarget, 1000);
-      difficultyIncreaseInterval = setInterval(() => {
-        targetSpeed += 0.5;
-      }, 8000);
-      gameTimerInterval = setInterval(updateScoreboard, 1000);
-      update();
-      handleMovement();
-    }
-
-    function pauseGame() {
-      if (!gameActive) return;
-      paused = true;
-      clearInterval(spawnInterval);
-      clearInterval(difficultyIncreaseInterval);
-      clearInterval(gameTimerInterval);
-      document.getElementById("pauseBtn").style.display = "none";
-      document.getElementById("resumeBtn").style.display = "inline-block";
-    }
-
-    function resumeGame() {
-      if (!gameActive || !paused) return;
-      paused = false;
-      spawnInterval = setInterval(spawnTarget, 1000);
-      difficultyIncreaseInterval = setInterval(() => {
-        targetSpeed += 0.5;
-      }, 8000);
-      gameTimerInterval = setInterval(updateScoreboard, 1000);
-      document.getElementById("pauseBtn").style.display = "inline-block";
-      document.getElementById("resumeBtn").style.display = "none";
-      update();
-      handleMovement();
-    }
-
-    function resetGame() {
-      clearInterval(spawnInterval);
-      clearInterval(difficultyIncreaseInterval);
-      clearInterval(gameTimerInterval);
-      gameActive = false;
-      paused = false;
-      targets = [];
-      score = 0;
-      health = 3;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      updateScoreboard();
-      document.getElementById("pauseBtn").style.display = "inline-block";
-      document.getElementById("resumeBtn").style.display = "none";
-      document.getElementById("gameOverScreen").style.display = "none";
-    }
-
-    function endGame() {
-      clearInterval(spawnInterval);
-      clearInterval(difficultyIncreaseInterval);
-      clearInterval(gameTimerInterval);
-      gameActive = false;
-      const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
-      const screen = document.getElementById("gameOverScreen");
-      screen.innerHTML = `<h2>Oyun Bitti 🎮</h2><p>Puanınız: ${score}</p><p>Süre: ${elapsed} saniye</p>`;
-      screen.style.display = "block";
-    }
-  
-    let doublePointsActive = false;
-    let originalSpeedMultiplier = 1;
-
-    function slowDownTargets(duration) {
-      targetSpeed /= 2;
-      setTimeout(() => {
-        targetSpeed *= 2;
-      }, duration);
-    }
-
-    function activateDoublePoints(duration) {
-      doublePointsActive = true;
-      setTimeout(() => {
-        doublePointsActive = false;
-      }, duration);
-    }
-</script>
+  <h1>Nisa & Ozan'ın Minik Dünyası 💙💛</h1>
+  <a href="1.site.html"><button class="btn">1. Site (Mavi Temalı) 💙</button></a>
+  <a href="2.site.html"><button class="btn">2. Site (Sarı Temalı) 💛</button></a>
+  <a href="3.site.html"><button class="btn">3. Site (Oyun Zamanı!) 🎮</button></a>
 </body>
 </html>
