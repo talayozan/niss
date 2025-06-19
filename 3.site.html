@@ -84,6 +84,8 @@
   <div id="gameOverScreen"></div>
   <canvas id="gameCanvas" width="900" height="900"></canvas>
   <audio id="catchSound" src="catch.mp3" preload="auto"></audio>
+  <audio id="gameOverSound" src="gameover.mp3" preload="auto"></audio>
+
 
 
   <script>
@@ -309,15 +311,21 @@
     }
 
     function endGame() {
-      clearInterval(spawnInterval);
-      clearInterval(difficultyIncreaseInterval);
-      clearInterval(gameTimerInterval);
-      gameActive = false;
-      const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
-      const screen = document.getElementById("gameOverScreen");
-      screen.innerHTML = `<h2>Oyun Bitti 🎮</h2><p>Puanınız: ${score}</p><p>Süre: ${elapsed} saniye</p>`;
-      screen.style.display = "block";
-    }
+  clearInterval(spawnInterval);
+  clearInterval(difficultyIncreaseInterval);
+  clearInterval(gameTimerInterval);
+  gameActive = false;
+
+  // OYUN BİTTİ SESİ
+  const sound = document.getElementById("gameOverSound");
+  sound.currentTime = 0;
+  sound.play();
+
+  const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+  const screen = document.getElementById("gameOverScreen");
+  screen.innerHTML = `<h2>Oyun Bitti 🎮</h2><p>Puanınız: ${score}</p><p>Süre: ${elapsed} saniye</p>`;
+  screen.style.display = "block";
+}
   
     let doublePointsActive = false;
     let originalSpeedMultiplier = 1;
